@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './index.css';
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -6,12 +6,13 @@ const numbers = "0123456789";
 const symbols = "!@#$%^&*()-_=+[]{}|;:'\\\",.<>?/`~";
 
 function App() {
+  const fullNameRef = useRef(null);
+  const specializationRef = useRef(null);
+  const experienceRef = useRef(null);
+
   const [formData, setFormData] = useState({
-    fullName: '',
     username: '',
     password: '',
-    specialization: '',
-    experience: '',
     description: ''
   });
 
@@ -68,38 +69,25 @@ function App() {
     e.preventDefault();
     let validationErrors = {};
 
+    // Recupera i valori dai ref
+    const fullName = fullNameRef.current.value;
+    const specialization = specializationRef.current.value;
+    const experience = experienceRef.current.value;
+
     // Controlla che tutti i campi siano compilati
-    Object.keys(formData).forEach((key) => {
-      if (!formData[key]) {
-        validationErrors[key] = 'Campo obbligatorio';
-      }
-    });
-
-    // Controlla che anni di esperienza sia un numero positivo
-    if (formData.experience && parseInt(formData.experience) <= 0) {
-      validationErrors.experience = 'Inserisci un numero positivo';
-    }
-
-    // Controlla che la specializzazione sia selezionata
-    if (!formData.specialization) {
-      validationErrors.specialization = 'Seleziona una specializzazione';
-    }
+    if (!fullName) validationErrors.fullName = 'Campo obbligatorio';
+    if (!specialization) validationErrors.specialization = 'Seleziona una specializzazione';
+    if (!experience || parseInt(experience) <= 0) validationErrors.experience = 'Inserisci un numero positivo';
 
     // Controlla le validazioni in tempo reale
-    if (!validations.username) {
-      validationErrors.username = 'Username non valido';
-    }
-    if (!validations.password) {
-      validationErrors.password = 'Password non valida';
-    }
-    if (!validations.description) {
-      validationErrors.description = 'Descrizione non valida';
-    }
+    if (!validations.username) validationErrors.username = 'Username non valido';
+    if (!validations.password) validationErrors.password = 'Password non valida';
+    if (!validations.description) validationErrors.description = 'Descrizione non valida';
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      console.log('Dati inviati:', formData);
+      console.log('Dati inviati:', { fullName, specialization, experience, ...formData });
       setErrors({});
     }
   };
@@ -108,7 +96,7 @@ function App() {
     <div className="container">
       <h1>Registrazione Utente</h1>
       <form className="registration-form" onSubmit={handleSubmit}>
-        <input type="text" name="fullName" placeholder="Nome e cognome" onChange={handleChange} />
+        <input type="text" ref={fullNameRef} placeholder="Nome e cognome" />
         {errors.fullName && <p className="error">{errors.fullName}</p>}
 
         <input type="text" name="username" placeholder="Username" onChange={handleChange} />
@@ -119,7 +107,7 @@ function App() {
         {errors.password && <p className="error">{errors.password}</p>}
         {validations.password && <p className="success">Password valida</p>}
 
-        <select name="specialization" id="specializzazione" onChange={handleChange}>
+        <select name="specialization" ref={specializationRef}>
           <option value="">Seleziona la tua specializzazione</option>
           <option value="full-stack">Full stack</option>
           <option value="frontend">Frontend</option>
@@ -127,10 +115,10 @@ function App() {
         </select>
         {errors.specialization && <p className="error">{errors.specialization}</p>}
 
-        <input type="number" name="experience" placeholder="Anni di esperienza" onChange={handleChange} />
+        <input type="number" ref={experienceRef} placeholder="Anni di esperienza" />
         {errors.experience && <p className="error">{errors.experience}</p>}
 
-        <textarea name="description" id="description" placeholder="Raccontaci qualcosa di te" onChange={handleChange}></textarea>
+        <textarea name="description" placeholder="Raccontaci qualcosa di te" onChange={handleChange}></textarea>
         {errors.description && <p className="error">{errors.description}</p>}
         {validations.description && <p className="success">Descrizione valida</p>}
 
